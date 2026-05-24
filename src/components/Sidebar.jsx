@@ -20,8 +20,7 @@ const NAV = [
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
 const DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']
 
-export default function Sidebar({ activePage, onNavigate, collapsed, onCollapse }) {
-  const { profile, signOut } = useAuth()
+export default function Sidebar({ activePage, onNavigate, collapsed, onCollapse, mobileOpen }) {  const { profile, signOut } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const now = new Date()
 
@@ -60,12 +59,19 @@ export default function Sidebar({ activePage, onNavigate, collapsed, onCollapse 
       }} className="mobile-toggle">☰</button>
 
       <aside style={{
-        ...sidebarStyle,
-        ...(window.innerWidth <= 960 ? {
-          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
-          width: '240px',
-        } : {})
-      }}>
+            width: collapsed ? '64px' : '240px',
+            minHeight: '100vh',
+            background: 'var(--mocha)',
+            display: 'flex',
+            flexDirection: 'column',
+            flexShrink: 0,
+            position: 'fixed',
+            top: 0, left: 0, bottom: 0,
+            zIndex: 50,
+            overflow: 'hidden',
+            transition: 'width .3s ease, transform .3s ease',
+        }} className={mobileOpen ? 'sidebar mobile-open' : 'sidebar'}>
+
         {/* Toggle button */}
         <button onClick={() => onCollapse(!collapsed)} style={{
           position: 'absolute', top: '24px', right: '-12px',

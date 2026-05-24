@@ -61,3 +61,65 @@ a {
   background: var(--border);
   border-radius: 2px;
 }
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  /* Sidebar vira overlay */
+  aside.sidebar {
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    width: 240px !important;
+    z-index: 50;
+  }
+
+  aside.sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  /* Main ocupa tela toda */
+  .main-wrap {
+    margin-left: 0 !important;
+  }
+
+  /* Padding menor */
+  .main-content {
+    padding: 60px 16px 24px !important;
+  }
+
+  /* Grids viram coluna única */
+  .dash-grid,
+  .kanban-grid,
+  .manifest-layout,
+  .members-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Grids de 2 colunas */
+  .freq-grid,
+  .bonus-grid,
+  .grat-grid,
+  .cnt-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Instagram metrics */
+  .insta-metrics {
+    grid-template-columns: 1fr 1fr !important;
+    .mobile-menu-btn {
+    display: flex !important;
+  }
+
+  .sidebar-toggle {
+    display: none !important;
+  }
+  }
+}
+
+@media (max-width: 480px) {
+  .freq-grid,
+  .bonus-grid,
+  .grat-grid,
+  .cnt-grid,
+  .insta-metrics {
+    grid-template-columns: 1fr !important;
+  }
+}
