@@ -21,7 +21,6 @@ const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov
 const DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']
 
 export default function Sidebar({ activePage, onNavigate, collapsed, onCollapse, mobileOpen }) {  const { profile, signOut } = useAuth()
-  const [mobileOpen, setMobileOpen] = useState(false)
   const now = new Date()
 
   const sidebarStyle = {
