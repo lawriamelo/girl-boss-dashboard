@@ -118,7 +118,7 @@ export default function Membros() {
               <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'linear-gradient(135deg,var(--bronze),var(--gold))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--serif)', fontSize: '24px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>
                 {(myProfile?.name || user.email || '?').charAt(0).toUpperCase()}
               </div>
-              <div style={{ fontFamily: 'var(--serif)', fontSize: '18px', fontWeight: 700, color: 'var(--mocha)', marginBottom: '4px' }}>{myProfile?.name || user.email}</div>
+              <div style={{ fontFamily: 'var(--serif)', fontSize: '18px', fontWeight: 700, color: 'var(--mocha)', marginBottom: '4px', wordBreak: 'break-all' }}>{myProfile?.name || user.email}</div>
               <div style={{ fontSize: '10px', color: 'var(--muted)', marginBottom: '12px' }}>{myProfile?.type || 'Membra'}</div>
               {myProfile?.status && <span style={{ display: 'inline-flex', padding: '4px 12px', borderRadius: '2px', fontSize: '9px', letterSpacing: '.1em', textTransform: 'uppercase', fontWeight: 500, background: STATUS_MAP[myProfile.status]?.bg, color: STATUS_MAP[myProfile.status]?.color, marginBottom: '12px' }}>{STATUS_MAP[myProfile.status]?.label}</span>}
               {myProfile?.progress && <div style={{ fontSize: '11px', color: 'var(--muted)', fontStyle: 'italic', padding: '8px 14px', background: 'var(--warm)', borderRadius: '3px', border: '1px solid var(--border)' }}>{myProfile.progress}</div>}
