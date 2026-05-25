@@ -17,6 +17,8 @@ export default function Kanban() {
   const [dragOver, setDragOver] = useState(null)
   const [loading, setLoading] = useState(true)
   const dragCard = useRef(null)
+  const touchCard = useRef(null)
+  const touchClone = useRef(null)
 
   useEffect(() => { if (user) load() }, [user])
   useEffect(() => {
@@ -70,7 +72,6 @@ export default function Kanban() {
     if (data) setCards(prev => prev.map(c => c.id === card.id ? data : c))
   }
 
-  // DRAG AND DROP
   function onDragStart(e, card) {
     dragCard.current = card
     e.dataTransfer.effectAllowed = 'move'
@@ -97,20 +98,11 @@ export default function Kanban() {
     moveCard(dragCard.current, colKey)
   }
 
-  // TOUCH (mobile)
-  const touchCard = useRef(null)
-  const touchClone = useRef(null)
-
   function onTouchStart(e, card) {
     touchCard.current = card
     const el = e.currentTarget
     const clone = el.cloneNode(true)
-    clone.style.position = 'fixed'
-    clone.style.opacity = '0.7'
-    clone.style.pointerEvents = 'none'
-    clone.style.width = el.offsetWidth + 'px'
-    clone.style.zIndex = 1000
-    clone.style.boxShadow = '0 8px 24px rgba(44,31,20,.2)'
+    clone.style.cssText = `position:fixed;opacity:0.7;pointer-events:none;width:${el.offsetWidth}px;z-index:1000;box-shadow:0 8px 24px rgba(44,31,20,.2);`
     document.body.appendChild(clone)
     touchClone.current = clone
     el.style.opacity = '0.3'
@@ -121,13 +113,12 @@ export default function Kanban() {
     const touch = e.touches[0]
     touchClone.current.style.left = (touch.clientX - 60) + 'px'
     touchClone.current.style.top = (touch.clientY - 30) + 'px'
-    // highlight column under finger
     const el = document.elementFromPoint(touch.clientX, touch.clientY)
     const col = el?.closest('[data-col]')?.getAttribute('data-col')
     setDragOver(col || null)
   }
 
-  function onTouchEnd(e) {
+  function onTouchEnd() {
     if (touchClone.current) { document.body.removeChild(touchClone.current); touchClone.current = null }
     document.querySelectorAll('[data-card-id]').forEach(el => el.style.opacity = '1')
     if (touchCard.current && dragOver && dragOver !== touchCard.current.column_key) {
@@ -141,12 +132,14 @@ export default function Kanban() {
 
   return (
     <div>
-      <div style={{ marginBottom: '22px', paddingBottom: '18px', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ fontSize: '8.5px', letterSpacing: '.3em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '3px' }}>Quadro de Tarefas</div>
-        <div style={{ fontFamily: 'var(--serif)', fontSize: '26px', fontWeight: 700, color: 'var(--mocha)' }}>Kanban</div>
+      <div className="page-hdr">
+        <div>
+          <div className="eyebrow">Quadro de Tarefas</div>
+          <div className="page-title">Kanban</div>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '14px' }}>
+      <div className="kanban-grid">
         {COLS.map(col => {
           const colCards = cards.filter(c => c.column_key === col.key)
           const isOver = dragOver === col.key
@@ -224,10 +217,7 @@ export default function Kanban() {
                   <input
                     value={inputs[col.key].text}
                     onChange={e => setInputs(prev => ({ ...prev, [col.key]: { ...prev[col.key], text: e.target.value } }))}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') addCard(col.key)
-                      if (e.key === 'Escape') setShowing(prev => ({ ...prev, [col.key]: false }))
-                    }}
+                    onKeyDown={e => { if (e.key === 'Enter') addCard(col.key); if (e.key === 'Escape') setShowing(prev => ({ ...prev, [col.key]: false })) }}
                     placeholder="Nova tarefa..."
                     autoFocus
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--gold)', borderRadius: '3px', background: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--mocha)', outline: 'none' }}
@@ -235,10 +225,7 @@ export default function Kanban() {
                   <input
                     value={inputs[col.key].tag}
                     onChange={e => setInputs(prev => ({ ...prev, [col.key]: { ...prev[col.key], tag: e.target.value } }))}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') addCard(col.key)
-                      if (e.key === 'Escape') setShowing(prev => ({ ...prev, [col.key]: false }))
-                    }}
+                    onKeyDown={e => { if (e.key === 'Enter') addCard(col.key); if (e.key === 'Escape') setShowing(prev => ({ ...prev, [col.key]: false })) }}
                     placeholder="Tag (opcional)..."
                     style={{ width: '100%', padding: '6px 10px', border: '1px solid var(--border)', borderRadius: '3px', background: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: '10px', color: 'var(--muted)', outline: 'none', textTransform: 'uppercase', letterSpacing: '.08em' }}
                   />

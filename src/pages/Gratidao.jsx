@@ -41,57 +41,39 @@ export default function Gratidao() {
     setEntries(prev => prev.filter(e => e.id !== id))
   }
 
-  const streak = Math.min(entries.length, 30)
-
   if (loading) return <div style={{ color: 'var(--muted)', fontSize: '12px' }}>Carregando...</div>
 
   return (
     <div>
-      {/* Header */}
-      <div style={{ marginBottom: '22px', paddingBottom: '18px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <div style={{ fontSize: '8.5px', letterSpacing: '.3em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '3px' }}>Quadro de</div>
-          <div style={{ fontFamily: 'var(--serif)', fontSize: '26px', fontWeight: 700, color: 'var(--mocha)' }}>Gratidão</div>
-        </div>
+      <div className="page-hdr">
+        <div><div className="eyebrow">Quadro de</div><div className="page-title">Gratidão</div></div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#fff', border: '1px solid var(--border)', borderRadius: '3px', boxShadow: 'var(--shadow)' }}>
           <span style={{ fontSize: '16px' }}>🔥</span>
           <div>
-            <div style={{ fontFamily: 'var(--serif)', fontSize: '20px', fontWeight: 700, color: 'var(--bronze)', lineHeight: 1 }}>{streak}</div>
+            <div style={{ fontFamily: 'var(--serif)', fontSize: '20px', fontWeight: 700, color: 'var(--bronze)', lineHeight: 1 }}>{Math.min(entries.length, 30)}</div>
             <div style={{ fontSize: '8px', letterSpacing: '.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>dias seguidos</div>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: '20px', alignItems: 'start' }}>
+      <div className="grat-layout">
         <div>
-          {/* Add card */}
           <div style={{ background: 'linear-gradient(135deg,var(--mocha),#3A2518)', borderRadius: '4px', border: '1px solid rgba(201,169,110,.1)', marginBottom: '16px', overflow: 'hidden' }}>
             <div style={{ padding: '13px 17px 11px', borderBottom: '1px solid rgba(201,169,110,.12)' }}>
               <span style={{ fontSize: '9px', letterSpacing: '.25em', textTransform: 'uppercase', color: 'rgba(201,169,110,.65)' }}>✦ Gratidões de Hoje</span>
             </div>
             <div style={{ padding: '17px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {[
-                { val: g1, set: setG1, ph: 'Sou grata por...' },
-                { val: g2, set: setG2, ph: 'Me sinto abençoada com...' },
-                { val: g3, set: setG3, ph: 'Hoje escolho celebrar...' },
-              ].map((f, i) => (
-                <input key={i} value={f.val} onChange={e => f.set(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') add() }}
-                  placeholder={f.ph}
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid rgba(201,169,110,.2)', borderRadius: '3px', background: 'rgba(255,255,255,.06)', fontFamily: 'var(--prose)', fontSize: '14px', color: 'var(--cream)', outline: 'none' }}
-                />
+              {[{val:g1,set:setG1,ph:'Sou grata por...'},{val:g2,set:setG2,ph:'Me sinto abençoada com...'},{val:g3,set:setG3,ph:'Hoje escolho celebrar...'}].map((f,i) => (
+                <input key={i} value={f.val} onChange={e => f.set(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') add() }} placeholder={f.ph}
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid rgba(201,169,110,.2)', borderRadius: '3px', background: 'rgba(255,255,255,.06)', fontFamily: 'var(--prose)', fontSize: '14px', color: 'var(--cream)', outline: 'none' }} />
               ))}
-              <button onClick={add} style={{ alignSelf: 'flex-end', padding: '9px 20px', background: 'rgba(201,169,110,.14)', border: '1px solid rgba(201,169,110,.25)', borderRadius: '3px', color: 'var(--gold)', fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '.15em', textTransform: 'uppercase', cursor: 'pointer' }}>
-                ✦ Registrar
-              </button>
+              <button onClick={add} style={{ alignSelf: 'flex-end', padding: '9px 20px', background: 'rgba(201,169,110,.14)', border: '1px solid rgba(201,169,110,.25)', borderRadius: '3px', color: 'var(--gold)', fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '.15em', textTransform: 'uppercase', cursor: 'pointer' }}>✦ Registrar</button>
             </div>
           </div>
-
-          {/* Entries grid */}
           {entries.length === 0 ? (
             <div style={{ padding: '40px', textAlign: 'center', color: 'var(--muted)', fontSize: '13px', fontStyle: 'italic' }}>Nenhuma gratidão registrada ainda. Comece hoje! ✦</div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '14px' }}>
+            <div className="grat-grid">
               {entries.map(e => (
                 <div key={e.id} style={{ background: 'var(--warm)', border: '1px solid var(--border)', borderRadius: '4px', padding: '16px', position: 'relative', transition: 'all .2s' }}
                   onMouseEnter={el => { el.currentTarget.style.borderColor = 'var(--gold)'; el.currentTarget.querySelector('.del').style.opacity = '1' }}
@@ -101,8 +83,7 @@ export default function Gratidao() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {e.items.map((item, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontFamily: 'var(--prose)', fontSize: '14px', lineHeight: 1.5, color: 'var(--mocha)' }}>
-                        <span style={{ color: 'var(--gold)', fontSize: '10px', marginTop: '3px', flexShrink: 0 }}>✦</span>
-                        {item}
+                        <span style={{ color: 'var(--gold)', fontSize: '10px', marginTop: '3px', flexShrink: 0 }}>✦</span>{item}
                       </div>
                     ))}
                   </div>
@@ -112,18 +93,12 @@ export default function Gratidao() {
             </div>
           )}
         </div>
-
-        {/* Affirmations sidebar */}
         <div style={{ position: 'sticky', top: '20px' }}>
-          <div style={{ background: '#fff', borderRadius: '4px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
-            <div style={{ padding: '13px 17px 11px', borderBottom: '1px solid var(--border)' }}>
-              <span style={{ fontSize: '9px', letterSpacing: '.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>✦ Afirmações</span>
-            </div>
-            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="card">
+            <div className="card-hdr"><span className="card-hdr-title">✦ Afirmações</span></div>
+            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {AFFIRMATIONS.map((a, i) => (
-                <div key={i} style={{ padding: '10px', background: 'var(--warm)', borderRadius: '3px', borderLeft: '2px solid var(--gold)', fontFamily: 'var(--prose)', fontSize: '13px', fontStyle: 'italic', color: 'var(--mocha)', lineHeight: 1.6 }}>
-                  {a}
-                </div>
+                <div key={i} style={{ padding: '10px', background: 'var(--warm)', borderRadius: '3px', borderLeft: '2px solid var(--gold)', fontFamily: 'var(--prose)', fontSize: '13px', fontStyle: 'italic', color: 'var(--mocha)', lineHeight: 1.6 }}>{a}</div>
               ))}
             </div>
           </div>
