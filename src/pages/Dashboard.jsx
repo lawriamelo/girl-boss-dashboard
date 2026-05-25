@@ -217,10 +217,10 @@ export default function Dashboard() {
       </div>
 
       {/* 3-col grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.1fr', gap: '16px', alignItems: 'start' }}>
+      <div className="dash-grid">
 
         {/* COL 1 — Tasks + Notes */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="dash-col">
           <Card>
             <div style={{ padding: '13px 17px 11px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: '9px', letterSpacing: '.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>⭐ Tarefas Diárias</span>
@@ -260,7 +260,7 @@ export default function Dashboard() {
         </div>
 
         {/* COL 2 — Check-in */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="dash-col">
           <Card>
             <CardHeader title="✨ Check-in do Dia" />
             <CardBody>
@@ -300,7 +300,7 @@ export default function Dashboard() {
         </div>
 
         {/* COL 3 — Habits */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="dash-col">
           <Card>
             <CardHeader title="📅 Hábitos da Semana" />
             <CardBody>
