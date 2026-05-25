@@ -113,7 +113,7 @@ export default function CRM() {
       </div>
 
       {/* View toggle + totals */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', gap: '4px' }}>
           {['semana', 'mes'].map(v => (
             <button key={v} onClick={() => setView(v)} style={{ padding: '7px 16px', background: view === v ? 'var(--mocha)' : 'transparent', color: view === v ? 'var(--gold)' : 'var(--muted)', border: `1px solid ${view === v ? 'var(--mocha)' : 'var(--border)'}`, borderRadius: '3px', fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '.12em', textTransform: 'uppercase', cursor: 'pointer' }}>
@@ -121,7 +121,7 @@ export default function CRM() {
             </button>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', width: '100%' }}>
           <div style={{ padding: '8px 16px', background: '#fff', border: '1px solid var(--border)', borderRadius: '3px', boxShadow: 'var(--shadow)' }}>
             <div style={{ fontSize: '8px', letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '3px' }}>{view === 'semana' ? 'Semana' : 'Mês'} · Clientes</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: '22px', fontWeight: 700, color: 'var(--mocha)' }}>{filteredClients.filter(c => c.status === 'cliente').length}</div>
