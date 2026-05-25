@@ -8,7 +8,6 @@ const STATUS = {
   cliente: { label: 'Cliente', bg: 'rgba(125,140,117,.15)', color: '#7D8C75' },
   inativa: { label: 'Inativa', bg: 'rgba(176,144,128,.15)', color: '#B09080' },
 }
-
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
 const EMPTY = { name: '', contact: '', service: '', value: '', status: 'lead', next_action: '' }
 
@@ -57,26 +56,18 @@ export default function CRM() {
 
   function openEdit(client) {
     setForm({ name: client.name, contact: client.contact || '', service: client.service || '', value: client.value || '', status: client.status, next_action: client.next_action || '' })
-    setEditId(client.id)
-    setModal(true)
+    setEditId(client.id); setModal(true)
   }
-
-  function openNew() { setForm(EMPTY); setEditId(null); setModal(true) }
 
   const now = new Date()
 
   function getWeekClients() {
-    const start = new Date(now)
-    start.setDate(now.getDate() - now.getDay())
-    start.setHours(0,0,0,0)
+    const start = new Date(now); start.setDate(now.getDate() - now.getDay()); start.setHours(0,0,0,0)
     return clients.filter(c => new Date(c.created_at) >= start)
   }
 
   function getMonthClients() {
-    return clients.filter(c => {
-      const d = new Date(c.created_at)
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-    })
+    return clients.filter(c => { const d = new Date(c.created_at); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() })
   }
 
   const filteredClients = view === 'semana' ? getWeekClients() : getMonthClients()
@@ -84,19 +75,15 @@ export default function CRM() {
 
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
     const mc = clients.filter(c => { const d = new Date(c.created_at); return d.getMonth() === i && d.getFullYear() === now.getFullYear() })
-    const total = mc.filter(c => c.status === 'cliente').reduce((sum, c) => sum + parseValue(c.value), 0)
-    return { month: MONTHS[i], total, count: mc.length }
+    return { month: MONTHS[i], total: mc.filter(c => c.status === 'cliente').reduce((s,c) => s + parseValue(c.value), 0), count: mc.length }
   })
   const maxMonthTotal = Math.max(...monthlyData.map(m => m.total), 1)
 
   const weeklyData = Array.from({ length: 8 }, (_, i) => {
-    const wStart = new Date(now)
-    wStart.setDate(now.getDate() - now.getDay() - (7 * (7 - i)))
-    wStart.setHours(0,0,0,0)
+    const wStart = new Date(now); wStart.setDate(now.getDate() - now.getDay() - (7*(7-i))); wStart.setHours(0,0,0,0)
     const wEnd = new Date(wStart); wEnd.setDate(wStart.getDate() + 7)
     const wc = clients.filter(c => { const d = new Date(c.created_at); return d >= wStart && d < wEnd })
-    const total = wc.filter(c => c.status === 'cliente').reduce((sum, c) => sum + parseValue(c.value), 0)
-    return { label: `${wStart.getDate()}/${wStart.getMonth() + 1}`, total, count: wc.length }
+    return { label: `${wStart.getDate()}/${wStart.getMonth()+1}`, total: wc.filter(c => c.status === 'cliente').reduce((s,c) => s + parseValue(c.value), 0), count: wc.length }
   })
   const maxWeekTotal = Math.max(...weeklyData.map(w => w.total), 1)
 
@@ -104,81 +91,73 @@ export default function CRM() {
 
   return (
     <div>
+      {/* Header */}
       <div className="page-hdr">
-        <div>
-          <div className="eyebrow">Gestão de Clientes</div>
-          <div className="page-title">CRM de Vendas</div>
-        </div>
-        <button onClick={openNew} className="btn-primary">+ Nova Cliente</button>
+        <div><div className="eyebrow">Gestão de Clientes</div><div className="page-title">CRM de Vendas</div></div>
+        <button onClick={() => { setForm(EMPTY); setEditId(null); setModal(true) }} className="btn-primary">+ Nova Cliente</button>
       </div>
 
-      {/* View toggle + totals */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
-        <div style={{ display: 'flex', gap: '4px' }}>
-          {['semana', 'mes'].map(v => (
-            <button key={v} onClick={() => setView(v)} style={{ padding: '7px 16px', background: view === v ? 'var(--mocha)' : 'transparent', color: view === v ? 'var(--gold)' : 'var(--muted)', border: `1px solid ${view === v ? 'var(--mocha)' : 'var(--border)'}`, borderRadius: '3px', fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '.12em', textTransform: 'uppercase', cursor: 'pointer' }}>
-              {v === 'semana' ? 'Esta Semana' : 'Este Mês'}
-            </button>
-          ))}
+      {/* View toggle */}
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '12px', flexWrap: 'wrap' }}>
+        {['semana','mes'].map(v => (
+          <button key={v} onClick={() => setView(v)} style={{ padding: '7px 16px', background: view===v ? 'var(--mocha)' : 'transparent', color: view===v ? 'var(--gold)' : 'var(--muted)', border: `1px solid ${view===v ? 'var(--mocha)' : 'var(--border)'}`, borderRadius: '3px', fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '.12em', textTransform: 'uppercase', cursor: 'pointer' }}>
+            {v === 'semana' ? 'Esta Semana' : 'Este Mês'}
+          </button>
+        ))}
+      </div>
+
+      {/* Totals — stacked */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 120px', padding: '12px 16px', background: '#fff', border: '1px solid var(--border)', borderRadius: '3px', boxShadow: 'var(--shadow)' }}>
+          <div style={{ fontSize: '8px', letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '3px' }}>{view === 'semana' ? 'Semana' : 'Mês'} · Clientes</div>
+          <div style={{ fontFamily: 'var(--serif)', fontSize: '22px', fontWeight: 700, color: 'var(--mocha)' }}>{filteredClients.filter(c => c.status === 'cliente').length}</div>
         </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', width: '100%' }}>
-          <div style={{ padding: '8px 16px', background: '#fff', border: '1px solid var(--border)', borderRadius: '3px', boxShadow: 'var(--shadow)' }}>
-            <div style={{ fontSize: '8px', letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '3px' }}>{view === 'semana' ? 'Semana' : 'Mês'} · Clientes</div>
-            <div style={{ fontFamily: 'var(--serif)', fontSize: '22px', fontWeight: 700, color: 'var(--mocha)' }}>{filteredClients.filter(c => c.status === 'cliente').length}</div>
-          </div>
-          <div style={{ padding: '8px 16px', background: 'var(--mocha)', borderRadius: '3px', boxShadow: 'var(--shadow)' }}>
-            <div style={{ fontSize: '8px', letterSpacing: '.2em', textTransform: 'uppercase', color: 'rgba(201,169,110,.6)', marginBottom: '3px' }}>{view === 'semana' ? 'Semana' : 'Mês'} · Faturamento</div>
-            <div style={{ fontFamily: 'var(--serif)', fontSize: '22px', fontWeight: 700, color: 'var(--gold)' }}>{formatCurrency(totalFiltered)}</div>
-          </div>
+        <div style={{ flex: '1 1 120px', padding: '12px 16px', background: 'var(--mocha)', borderRadius: '3px', boxShadow: 'var(--shadow)' }}>
+          <div style={{ fontSize: '8px', letterSpacing: '.2em', textTransform: 'uppercase', color: 'rgba(201,169,110,.6)', marginBottom: '3px' }}>{view === 'semana' ? 'Semana' : 'Mês'} · Faturamento</div>
+          <div style={{ fontFamily: 'var(--serif)', fontSize: '22px', fontWeight: 700, color: 'var(--gold)' }}>{formatCurrency(totalFiltered)}</div>
         </div>
       </div>
 
       {/* Status badges */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap' }}>
         {Object.entries(STATUS).map(([key, s]) => (
-          <div key={key} style={{ padding: '5px 12px', background: s.bg, borderRadius: '2px', fontSize: '9px', letterSpacing: '.1em', textTransform: 'uppercase', color: s.color, fontFamily: 'var(--mono)' }}>
+          <div key={key} style={{ padding: '5px 10px', background: s.bg, borderRadius: '2px', fontSize: '9px', letterSpacing: '.1em', textTransform: 'uppercase', color: s.color, fontFamily: 'var(--mono)' }}>
             {s.label}: {clients.filter(c => c.status === key).length}
           </div>
         ))}
-        <div style={{ padding: '5px 12px', background: 'rgba(44,31,20,.04)', borderRadius: '2px', fontSize: '9px', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>Total: {clients.length}</div>
+        <div style={{ padding: '5px 10px', background: 'rgba(44,31,20,.04)', borderRadius: '2px', fontSize: '9px', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>Total: {clients.length}</div>
       </div>
 
       {/* Charts */}
       <div className="crm-charts">
         <div className="card">
-          <div className="card-hdr"><span className="card-hdr-title">📊 Faturamento Mensal · {now.getFullYear()}</span></div>
+          <div className="card-hdr"><span className="card-hdr-title">📊 Mensal · {now.getFullYear()}</span></div>
           <div className="card-body">
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '80px', marginBottom: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '70px', marginBottom: '6px' }}>
               {monthlyData.map((m, i) => (
                 <div key={i} style={{ flex: 1, height: '100%', display: 'flex', alignItems: 'flex-end' }}>
-                  <div title={`${m.month}: ${formatCurrency(m.total)}`}
-                    style={{ width: '100%', background: i === now.getMonth() ? 'var(--gold)' : 'var(--bronze)', borderRadius: '2px 2px 0 0', height: `${Math.max((m.total / maxMonthTotal) * 100, m.total > 0 ? 8 : 2)}%`, opacity: m.total === 0 ? .2 : 1, cursor: 'pointer', transition: 'height .4s ease' }} />
+                  <div title={`${m.month}: ${formatCurrency(m.total)}`} style={{ width: '100%', background: i === now.getMonth() ? 'var(--gold)' : 'var(--bronze)', borderRadius: '2px 2px 0 0', height: `${Math.max((m.total/maxMonthTotal)*100, m.total>0?8:2)}%`, opacity: m.total===0?.2:1, transition: 'height .4s' }} />
                 </div>
               ))}
             </div>
-            <div style={{ display: 'flex', gap: '4px' }}>
-              {monthlyData.map((m, i) => (
-                <div key={i} style={{ flex: 1, fontSize: '7px', color: i === now.getMonth() ? 'var(--bronze)' : 'var(--muted)', textAlign: 'center' }}>{m.month}</div>
-              ))}
+            <div style={{ display: 'flex', gap: '3px' }}>
+              {monthlyData.map((m,i) => <div key={i} style={{ flex: 1, fontSize: '6px', color: i===now.getMonth()?'var(--bronze)':'var(--muted)', textAlign: 'center', overflow: 'hidden' }}>{m.month}</div>)}
             </div>
           </div>
         </div>
 
         <div className="card">
-          <div className="card-hdr"><span className="card-hdr-title">📊 Faturamento Semanal · Últimas 8 Semanas</span></div>
+          <div className="card-hdr"><span className="card-hdr-title">📊 Últimas 8 Semanas</span></div>
           <div className="card-body">
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '80px', marginBottom: '6px' }}>
-              {weeklyData.map((w, i) => (
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '70px', marginBottom: '6px' }}>
+              {weeklyData.map((w,i) => (
                 <div key={i} style={{ flex: 1, height: '100%', display: 'flex', alignItems: 'flex-end' }}>
-                  <div title={`Semana ${w.label}: ${formatCurrency(w.total)}`}
-                    style={{ width: '100%', background: i === 7 ? 'var(--gold)' : 'var(--bronze)', borderRadius: '2px 2px 0 0', height: `${Math.max((w.total / maxWeekTotal) * 100, w.total > 0 ? 8 : 2)}%`, opacity: w.total === 0 ? .2 : 1, cursor: 'pointer', transition: 'height .4s ease' }} />
+                  <div title={`${w.label}: ${formatCurrency(w.total)}`} style={{ width: '100%', background: i===7?'var(--gold)':'var(--bronze)', borderRadius: '2px 2px 0 0', height: `${Math.max((w.total/maxWeekTotal)*100, w.total>0?8:2)}%`, opacity: w.total===0?.2:1, transition: 'height .4s' }} />
                 </div>
               ))}
             </div>
-            <div style={{ display: 'flex', gap: '4px' }}>
-              {weeklyData.map((w, i) => (
-                <div key={i} style={{ flex: 1, fontSize: '7px', color: i === 7 ? 'var(--bronze)' : 'var(--muted)', textAlign: 'center' }}>{w.label}</div>
-              ))}
+            <div style={{ display: 'flex', gap: '3px' }}>
+              {weeklyData.map((w,i) => <div key={i} style={{ flex: 1, fontSize: '6px', color: i===7?'var(--bronze)':'var(--muted)', textAlign: 'center', overflow: 'hidden' }}>{w.label}</div>)}
             </div>
           </div>
         </div>
@@ -187,41 +166,42 @@ export default function CRM() {
       {/* Table */}
       <div className="card">
         <div className="card-hdr">
-          <span className="card-hdr-title">{view === 'semana' ? 'Esta Semana' : 'Este Mês'} · {filteredClients.length} registros</span>
+          <span className="card-hdr-title">{view==='semana'?'Esta Semana':'Este Mês'} · {filteredClients.length} registros</span>
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                {['Nome','Contato','Serviço','Valor','Status','Próx. Ação',''].map(h => (
-                  <th key={h} style={{ fontSize: '8px', letterSpacing: '.22em', textTransform: 'uppercase', color: 'var(--muted)', padding: '8px 14px', textAlign: 'left', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{h}</th>
+        {filteredClients.length === 0 ? (
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--muted)', fontSize: '12px', fontStyle: 'italic' }}>Nenhum registro neste período.</div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '500px' }}>
+              <thead>
+                <tr>{['Nome','Serviço','Valor','Status',''].map(h => (
+                  <th key={h} style={{ fontSize: '8px', letterSpacing: '.18em', textTransform: 'uppercase', color: 'var(--muted)', padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{h}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {filteredClients.map(c => (
+                  <tr key={c.id} onMouseEnter={e => e.currentTarget.style.background='var(--warm)'} onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: '11px', fontWeight: 500, color: 'var(--mocha)' }}>{c.name}</div>
+                      {c.next_action && <div style={{ fontSize: '9px', color: 'var(--muted)', marginTop: '2px' }}>{c.next_action}</div>}
+                    </td>
+                    <td style={{ padding: '10px 12px', fontSize: '11px', color: 'var(--mocha)', borderBottom: '1px solid var(--border)' }}>{c.service}</td>
+                    <td style={{ padding: '10px 12px', fontSize: '11px', fontWeight: 500, borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{c.value}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>
+                      <span style={{ display: 'inline-flex', padding: '3px 8px', borderRadius: '2px', fontSize: '8px', letterSpacing: '.1em', textTransform: 'uppercase', fontWeight: 500, background: STATUS[c.status]?.bg, color: STATUS[c.status]?.color, whiteSpace: 'nowrap' }}>
+                        {STATUS[c.status]?.label}
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>
+                      <button onClick={() => openEdit(c)} style={{ background: 'transparent', border: 'none', color: 'var(--bronze)', cursor: 'pointer', fontSize: '11px', marginRight: '6px' }}>✏️</button>
+                      <button onClick={() => { if (window.confirm('Remover?')) remove(c.id) }} style={{ background: 'transparent', border: 'none', color: 'var(--dusty)', cursor: 'pointer', fontSize: '11px' }}>✕</button>
+                    </td>
+                  </tr>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredClients.length === 0 ? (
-                <tr><td colSpan={7} style={{ padding: '24px', textAlign: 'center', color: 'var(--muted)', fontSize: '12px', fontStyle: 'italic' }}>Nenhum registro neste período.</td></tr>
-              ) : filteredClients.map(c => (
-                <tr key={c.id} onMouseEnter={e => e.currentTarget.style.background = 'var(--warm)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  <td style={{ padding: '11px 14px', fontSize: '11px', color: 'var(--mocha)', borderBottom: '1px solid var(--border)' }}><strong>{c.name}</strong></td>
-                  <td style={{ padding: '11px 14px', fontSize: '11px', color: 'var(--muted)', borderBottom: '1px solid var(--border)' }}>{c.contact}</td>
-                  <td style={{ padding: '11px 14px', fontSize: '11px', color: 'var(--mocha)', borderBottom: '1px solid var(--border)' }}>{c.service}</td>
-                  <td style={{ padding: '11px 14px', fontSize: '11px', fontWeight: 500, borderBottom: '1px solid var(--border)' }}>{c.value}</td>
-                  <td style={{ padding: '11px 14px', borderBottom: '1px solid var(--border)' }}>
-                    <span style={{ display: 'inline-flex', padding: '3px 8px', borderRadius: '2px', fontSize: '8px', letterSpacing: '.1em', textTransform: 'uppercase', fontWeight: 500, background: STATUS[c.status]?.bg, color: STATUS[c.status]?.color }}>
-                      {STATUS[c.status]?.label}
-                    </span>
-                  </td>
-                  <td style={{ padding: '11px 14px', fontSize: '10px', color: 'var(--muted)', borderBottom: '1px solid var(--border)' }}>{c.next_action}</td>
-                  <td style={{ padding: '11px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>
-                    <button onClick={() => openEdit(c)} style={{ background: 'transparent', border: 'none', color: 'var(--bronze)', cursor: 'pointer', fontSize: '11px', marginRight: '8px' }}>✏️</button>
-                    <button onClick={() => { if (window.confirm('Remover?')) remove(c.id) }} style={{ background: 'transparent', border: 'none', color: 'var(--dusty)', cursor: 'pointer', fontSize: '11px' }}>✕</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </tbody>
+            </table>
+          </div>
+        )}
         {filteredClients.filter(c => c.status === 'cliente').length > 0 && (
           <div style={{ padding: '12px 17px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: '20px' }}>
             <span style={{ fontSize: '9px', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>Total faturado</span>
@@ -233,18 +213,12 @@ export default function CRM() {
       {/* Modal */}
       {modal && (
         <div onClick={() => { setModal(false); setForm(EMPTY); setEditId(null) }} style={{ position: 'fixed', inset: 0, background: 'rgba(44,31,20,.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(5px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '6px', padding: '30px', maxWidth: '460px', width: '100%', boxShadow: '0 20px 60px rgba(44,31,20,.2)', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '6px', padding: '24px', maxWidth: '460px', width: '100%', boxShadow: '0 20px 60px rgba(44,31,20,.2)', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ fontFamily: 'var(--serif)', fontSize: '20px', fontWeight: 700, color: 'var(--mocha)', marginBottom: '18px' }}>{editId ? 'Editar Cliente' : 'Nova Cliente'}</div>
-            {[
-              { key: 'name', label: 'Nome', placeholder: 'Nome da cliente' },
-              { key: 'contact', label: 'Contato', placeholder: '@instagram ou whatsapp' },
-              { key: 'service', label: 'Serviço', placeholder: 'Ex: Mentoria individual' },
-              { key: 'value', label: 'Valor', placeholder: 'R$ 0,00' },
-              { key: 'next_action', label: 'Próxima Ação', placeholder: 'Ex: Enviar proposta amanhã' },
-            ].map(f => (
+            {[{key:'name',label:'Nome',ph:'Nome da cliente'},{key:'contact',label:'Contato',ph:'@instagram ou whatsapp'},{key:'service',label:'Serviço',ph:'Ex: Mentoria individual'},{key:'value',label:'Valor',ph:'R$ 0,00'},{key:'next_action',label:'Próxima Ação',ph:'Ex: Enviar proposta amanhã'}].map(f => (
               <div key={f.key} style={{ marginBottom: '12px' }}>
                 <label style={{ display: 'block', fontSize: '8px', letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '5px' }}>{f.label}</label>
-                <input value={form[f.key]} onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))} placeholder={f.placeholder}
+                <input value={form[f.key]} onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))} placeholder={f.ph}
                   style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border)', borderRadius: '3px', fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--mocha)', background: 'var(--warm)', outline: 'none' }} />
               </div>
             ))}
